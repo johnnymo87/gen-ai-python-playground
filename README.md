@@ -51,14 +51,24 @@ This codebase is a collection of scripts, CLIs, etc. that use python to accompli
    poetry install
    ```
 
+1. Initialize the poetry virtual environment.
+   ```
+   poetry env activate
+   ```
+
+1. Install the pre-commit hooks.
+   ```
+   pre-commit install
+   ```
+
 ## Development
 
 * Initialize the poetry virtual environment.
   ```
-  poetry shell
+  poetry env activate
   ```
 
-* Run the auto formatter:
+* Run the auto formatter manually (although it will run automatically as a pre-commit hook).
   ```
-  poetry run pre-commit run --all-files
+  pre-commit run --all-files
   ```
