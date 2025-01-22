@@ -8,8 +8,6 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.11,<4.0"
 dependencies = [
-    "click (>=8.1.8,<9.0.0)",
-    "openai (>=1.59.9,<2.0.0)"
 ]
 
 

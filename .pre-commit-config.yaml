@@ -11,9 +11,7 @@ repos:
   hooks:
     - id: mypy
       args: ["--strict", "--pretty", "--show-error-codes"]
-      additional_dependencies:
-        - click
-        - openai
+      additional_dependencies: []
 - repo: https://github.com/psf/black
   rev: 24.10.0
   hooks:
