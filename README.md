@@ -1,74 +1,74 @@
-# gen-ai-python-playground
+# Generatie AI Python Playground
 
-This codebase is a collection of scripts, CLIs, etc. that use python to accomplish various ends by interacting with generative AI service providers' APIs.
+This repository is a collection of scripts and utilities that I use to interact with generative AI.
 
-## Install
+## Overview
 
-### Environment variables
+This project leverages Python and [Poetry](https://python-poetry.org/) to manage dependencies, as well as [Direnv](https://direnv.net/) for managing environment variables. Each module in this repository has its own README, which provides task-specific or site-specific details.
 
-1. Copy `.envrc.example` to `.envrc`.
+## Installation
+
+1. **Clone the repository:**
+    ```bash
+    git clone https://github.com/johnnymo87/scrapers.git
+    cd scrapers
+    ```
+
+2. **Environment variables:**
+   - Rename `.envrc.example` to `.envrc` and fill in your keys.
+   - Allow direnv:
+     ```bash
+     direnv allow
+     ```
+
+3. **Python Setup:**
+   - Use pyenv to install Python (see [pyenv installation](https://github.com/pyenv/pyenv#installation)).
+   - The required Python version is specified in `.python-version`.
+
+4. **Install Dependencies:**
+   - Install Poetry if you haven't already:
+     ```bash
+     curl -sSL https://install.python-poetry.org | python3 -
+     ```
+   - Then install project dependencies:
+     ```bash
+     poetry install --with dev
+     ```
+
+5. **Pre-commit Hooks:**
+   - Install pre-commit hooks:
+     ```bash
+     pre-commit install
+     ```
+
+6. **Running the linter:**
+   - Run the linter with:
+     ```bash
+     pre-commit run --all-files
+     ```
+
+7. **Running Tests:**
+   - Execute tests (if present) using pytest:
+     ```bash
+     poetry run pytest
+     ```
+
+## CI Pipeline
+
+- A GitHub Actions workflow defined in `.github/workflows/ci.yaml` runs lint checks and tests on every push and pull request.
+
+## Contributing
+
+1. Fork the repository in GitHub.
+2. Update your local clone to call your fork "origin" and my repository "upstream":
+   ```bash
+   git remote rename origin upstream
+   git remote add origin YOUR_FORK_URL
    ```
-   cp .envrc.example .envrc
-   ```
+3. Make a new branch for your changes.
+4. Submit a Pull Request.
+5. Confirm that it passes the CI pipeline.
 
-1. Fill out `.envrc`.
+---
 
-1. Source the environment variables defined in `.envrc`.
-   ```
-   direnv allow
-   ```
-
-### Python
-
-1. Install or update `pyenv` (and `python-build` to get access to recent releases of python).
-   ```
-   brew update && brew install python-build pyenv
-   brew update && brew upgrade python-build pyenv
-   ```
-
-1. Configure your shell to enable shims.
-   ```
-   # in e.g. ~/.bash_profile
-
-   if which pyenv > /dev/null; then
-     eval "$(pyenv init -)"
-   fi
-   ```
-
-1. Install python.
-   ```
-   pyenv install $(cat .python-version)
-   ```
-
-### Poetry
-
-1. Install Poetry [via its official installer](https://python-poetry.org/docs/#installing-with-the-official-installer).
-
-### Python dependencies
-
-1. Install dependencies.
-   ```
-   poetry install
-   ```
-
-1. Initialize the poetry virtual environment.
-   ```
-   poetry env activate
-   ```
-
-1. Install the pre-commit hooks.
-   ```
-   pre-commit install
-   ```
-
-## Development
-
-* Initialize the poetry virtual environment.
-  ```
-  poetry env activate
-  ```
-
-* Run the auto formatter manually (although it will run automatically as a pre-commit hook).
-  ```
-  pre-commit run --all-files
-  ```
+Happy coding!

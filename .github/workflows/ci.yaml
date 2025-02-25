@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push: # Will run on all branch pushes
+  pull_request: # Will run on all PRs
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.11"
+
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+
+    # Make Poetry available on the path:
+    - name: Update PATH
+      run: echo "${{ runner.temp }}/.poetry/bin" >> $GITHUB_PATH
+
+    - name: Install dependencies
+      run: |
+        poetry install --with dev --no-root
+
+    - name: Run pre-commit hooks (formatters, linters)
+      run: |
+        poetry run pre-commit run --all-files
+
+    # If ever there are tests to run, uncomment the following lines.
+    #
+    # - name: Run tests
+    #   run: |
+    #     poetry run pytest --cov --cov-report=term-missing
