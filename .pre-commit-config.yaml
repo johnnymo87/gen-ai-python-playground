@@ -11,7 +11,9 @@ repos:
   hooks:
     - id: mypy
       args: ["--strict", "--pretty", "--show-error-codes"]
-      additional_dependencies: []
+      additional_dependencies:
+        - click
+        - langchain-anthropic
 - repo: https://github.com/psf/black
   rev: 24.10.0
   hooks:

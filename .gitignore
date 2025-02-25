@@ -3,3 +3,11 @@ __pycache__/
 
 # "Direnv" file for setting environment variables.
 .envrc
+
+# The prompts that I send to the generative AI.
+prompts/*
+!prompts/.gitkeep
+
+# The outputs that the generative AI produces.
+logs/*
+!logs/.gitkeep

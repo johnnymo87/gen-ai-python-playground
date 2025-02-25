@@ -8,6 +8,8 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.11,<4.0"
 dependencies = [
+    "click (>=8.1.8,<9.0.0)",
+    "langchain-anthropic (>=0.3.8,<0.4.0)"
 ]
 
 
