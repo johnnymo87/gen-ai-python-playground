@@ -9,5 +9,5 @@ prompts/*
 !prompts/.gitkeep
 
 # The outputs that the generative AI produces.
-logs/*
-!logs/.gitkeep
+log/*
+!log/.gitkeep
