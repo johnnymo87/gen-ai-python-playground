@@ -28,14 +28,14 @@ from langchain_anthropic import ChatAnthropic
 @click.option(
     "--temperature",
     type=float,
-    default=1.0,
-    help="Temperature for generation. Defaults to 1.0.",
+    default=0.3,
+    help="Temperature for generation. Defaults to 0.3.",
 )
 @click.option(
     "--max-tokens",
     type=int,
-    default=20000,
-    help="Maximum tokens to sample for the model's response.",
+    default=1000000,
+    help="Maximum tokens in the response. Defaults to a million.",
 )
 @click.option(
     "--thinking-budget-tokens",
