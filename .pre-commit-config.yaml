@@ -15,6 +15,7 @@ repos:
         - click
         - google-genai
         - langchain-anthropic
+        - openai
 - repo: https://github.com/psf/black
   rev: 24.10.0
   hooks:

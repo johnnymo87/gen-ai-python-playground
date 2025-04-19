@@ -1,21 +1,21 @@
-# Generatie AI Python Playground
+# Generative AI Python Playground
 
-This repository is a collection of scripts and utilities that I use to interact with generative AI.
+This repository is a collection of scripts and utilities that I use to interact with generative AI models from Anthropic (Claude), Google (Gemini), and OpenAI (GPT).
 
 ## Overview
 
-This project leverages Python and [Poetry](https://python-poetry.org/) to manage dependencies, as well as [Direnv](https://direnv.net/) for managing environment variables. Each module in this repository has its own README, which provides task-specific or site-specific details.
+This project leverages Python and [Poetry](https://python-poetry.org/) to manage dependencies, as well as [Direnv](https://direnv.net/) for managing environment variables. Each module (`claude/`, `gemini/`, `openai/`) in this repository has its own README, which provides task-specific or site-specific details. # Modified this line
 
 ## Installation
 
 1. **Clone the repository:**
-    ```bash
-    git clone https://github.com/johnnymo87/scrapers.git
-    cd scrapers
-    ```
+   ```bash
+   git clone https://github.com/johnnymo87/gen-ai-python-playground.git
+   cd gen-ai-python-playground
+   ```
 
 2. **Environment variables:**
-   - Rename `.envrc.example` to `.envrc` and fill in your keys.
+   - Rename `.envrc.example` to `.envrc` and fill in your API keys for Anthropic, Google, and OpenAI.
    - Allow direnv:
      ```bash
      direnv allow
