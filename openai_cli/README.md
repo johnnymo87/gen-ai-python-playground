@@ -15,7 +15,7 @@ You can run the CLI using Poetry:
 *   `--prompt-file`: The path to a file containing the prompt.
 
 ```bash
-poetry run python -m openai --prompt-file path/to/prompt.txt
+poetry run python -m openai_cli --prompt-file path/to/prompt.txt
 ```
 
 ### Optional flags
@@ -29,7 +29,7 @@ poetry run python -m openai --prompt-file path/to/prompt.txt
 
 ```bash
 # Example usage with custom system prompt, model, temperature, and max tokens.
-poetry run python -m openai \
+poetry run python -m openai_cli \
   --model gpt-4o \
   --temperature 0.5 \
   --max-tokens 2000 \

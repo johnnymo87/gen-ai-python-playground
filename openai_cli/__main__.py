@@ -3,7 +3,6 @@ import sys
 from datetime import datetime
 
 import click
-
 from openai import OpenAI
 
 

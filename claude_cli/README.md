@@ -17,7 +17,7 @@ You can run the CLI using Poetry:
 * `--prompt-file`: The path to a file containing the prompt.
 
 ```bash
-poetry run python -m claude --prompt-file path/to/prompt.txt
+poetry run python -m claude_cli --prompt-file path/to/prompt.txt
 ```
 
 ### Optional flags
@@ -32,7 +32,7 @@ poetry run python -m claude --prompt-file path/to/prompt.txt
 
 ```bash
 # Example usage with custom system prompt, model, temperature, and max tokens.
-poetry run python -m claude \
+poetry run python -m claude_cli \
   --model claude-3.5-sonnet-latest \
   --temperature 0.7 \
   --max-tokens 15000 \
