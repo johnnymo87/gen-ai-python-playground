@@ -1,6 +1,6 @@
 # Claude Module
 
-This module provides a CLI tool and library function for interacting with Anthropic's Claude via LangChain. It reads a text prompt from a file and returns Claude's response.
+This module provides a CLI tool for interacting with Anthropic's Claude models via the official `anthropic` Python SDK. It reads a text prompt from a file and returns Claude's response.
 
 ## Configuration
 
@@ -24,8 +24,8 @@ poetry run python -m claude_cli --prompt-file path/to/prompt.txt
 
 * `--system-prompt-file`: The file containing the system prompt (default: `system_prompts/coding_000000`).
 * `--model`: The Claude model name to use (default: `claude-3-7-sonnet-latest`).
-* `--temperature`: The temperature for generation (default: 1.0).
-* `--max-tokens`: The maximum number of tokens to generate in the response (default: 20000).
+* `--temperature`: The temperature for generation (default: 0.3).
+* `--max-tokens`: The maximum number of tokens to generate in the response (default: about half a million).
 * `--thinking-budget-tokens`: The number of tokens to use for "thinking" before generating the response (default: 16000).
 
 ### Example command
@@ -33,7 +33,7 @@ poetry run python -m claude_cli --prompt-file path/to/prompt.txt
 ```bash
 # Example usage with custom system prompt, model, temperature, and max tokens.
 poetry run python -m claude_cli \
-  --model claude-3.5-sonnet-latest \
+  --model claude-3-7-sonnet-latest \
   --temperature 0.7 \
   --max-tokens 15000 \
   --thinking-budget-tokens 10000 \

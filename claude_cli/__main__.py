@@ -1,9 +1,11 @@
 import os
 import sys
 from datetime import datetime
+from typing import List, Union
 
 import click
-from langchain_anthropic import ChatAnthropic
+from anthropic import Anthropic
+from anthropic.types import TextBlock, ThinkingBlock
 
 
 @click.command()
@@ -34,8 +36,8 @@ from langchain_anthropic import ChatAnthropic
 @click.option(
     "--max-tokens",
     type=int,
-    default=1000000,
-    help="Maximum tokens in the response. Defaults to a million.",
+    default=524288,
+    help="Maximum tokens in the response. Defaults to about half a million.",
 )
 @click.option(
     "--thinking-budget-tokens",
@@ -53,9 +55,9 @@ def main(
 ) -> None:
     """
     Use the prompt text from --prompt-file (and a system prompt from
-    --system-prompt-file) to query the Claude API via LangChain, then store
-    both the prompt and response in a conversation log file, and also write
-    out a separate file containing just the response.
+    --system-prompt-file) to query the Claude API via the Anthropic SDK,
+    then store both the prompt and response in a conversation log file,
+    and also write out a separate file containing just the response.
     """
     # Read the main prompt
     try:
@@ -84,7 +86,8 @@ def main(
             thinking_budget_tokens,
         )
     except Exception as exc:
-        click.echo(f"Error: {exc}", err=True)
+        # Consider catching specific anthropic.APIError subclasses later
+        click.echo(f"Error calling Anthropic API: {exc}", err=True)
         sys.exit(1)
 
     # Write the response to stdout
@@ -99,10 +102,11 @@ def main(
     conversation_path = os.path.join("log", f"{base_name}_conversation")
     try:
         with open(conversation_path, "a", encoding="utf-8") as conv_f:
-            conv_f.write(f"{timestamp}\n")
+            # Using a slightly more structured log format
+            conv_f.write(f"--- Prompt: {timestamp} ---\n")
             conv_f.write(f"{prompt}\n")
-            conv_f.write(f"{timestamp}\n")
-            conv_f.write(f"{response_text}\n")
+            conv_f.write(f"--- Response: {timestamp} ---\n")
+            conv_f.write(f"{response_text}\n\n")  # Added newline for separation
     except OSError as exc:
         click.echo(f"Error writing conversation log: {exc}", err=True)
 
@@ -114,6 +118,8 @@ def main(
     except OSError as exc:
         click.echo(f"Error writing response file: {exc}", err=True)
 
+    click.echo(f"Response written to {response_path}")
+
 
 def get_claude_response(
     prompt: str,
@@ -124,39 +130,49 @@ def get_claude_response(
     thinking_budget_tokens: int,
 ) -> str:
     """
-    Uses the Claude API via LangChain's Anthropic integration to process the
+    Uses the Claude API via the Anthropic Python SDK to process the
     given prompt. Make sure the ANTHROPIC_API_KEY environment variable is set.
 
     Returns the response text produced by the model.
     """
-    llm = ChatAnthropic(
-        max_tokens_to_sample=max_tokens,
-        model_name=model,
-        stop=None,
-        temperature=temperature,
-        thinking={"type": "enabled", "budget_tokens": thinking_budget_tokens},
-        timeout=0,
-    )
+    # Client automatically reads ANTHROPIC_API_KEY from environment variables
+    client = Anthropic()
 
-    messages = [
-        ("system", system_prompt),
-        ("human", prompt),
-    ]
-    response = llm.invoke(messages)
-    content = response.content
+    # Construct the thinking parameter dictionary
+    thinking_param = {"type": "enabled", "budget_tokens": thinking_budget_tokens}
 
-    if isinstance(content, str):
-        return content
-    else:
-        joined = []
-        for block in content:
-            if isinstance(block, str):
-                joined.append(block)
-            elif isinstance(block, dict) and "text" in block:
-                joined.append(block["text"])
-            else:
-                joined.append(str(block))
-        return "".join(joined)
+    try:
+        message = client.messages.create(
+            model=model,
+            system=system_prompt,
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+            temperature=temperature,
+            max_tokens=max_tokens,
+            thinking=thinking_param,  # type: ignore
+            # timeout=0, # Default timeout is 10 minutes, configure if needed
+        )
+
+        # Extract text content, ignoring thinking blocks for the final output
+        response_parts: List[str] = []
+        content_block: Union[TextBlock, ThinkingBlock]
+        for content_block in message.content:
+            if content_block.type == "text":
+                response_parts.append(content_block.text)
+            elif content_block.type == "thinking":
+                # Optionally log thinking steps here if desired
+                # click.echo(f"Thinking: {content_block.thinking}", err=True)
+                pass  # Ignore thinking blocks in final concatenated output
+
+        return "".join(response_parts)
+
+    except Exception as e:
+        # Re-raise for the main function to catch and report
+        raise RuntimeError(f"Anthropic API call failed: {e}") from e
 
 
 if __name__ == "__main__":

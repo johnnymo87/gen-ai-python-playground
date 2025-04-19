@@ -12,9 +12,9 @@ repos:
     - id: mypy
       args: ["--strict", "--pretty", "--show-error-codes"]
       additional_dependencies:
+        - anthropic
         - click
         - google-genai
-        - langchain-anthropic
         - openai
 - repo: https://github.com/psf/black
   rev: 24.10.0
