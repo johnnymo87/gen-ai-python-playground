@@ -1,11 +1,11 @@
 import os
 import sys
 from datetime import datetime
-from typing import List, Union
+from typing import IO, Generator
 
 import click
 from anthropic import Anthropic
-from anthropic.types import TextBlock, ThinkingBlock
+from anthropic.lib.streaming import MessageStream
 
 
 @click.command()
@@ -30,14 +30,14 @@ from anthropic.types import TextBlock, ThinkingBlock
 @click.option(
     "--temperature",
     type=float,
-    default=0.3,
-    help="Temperature for generation. Defaults to 0.3.",
+    default=1.0,
+    help="Temperature for generation. Defaults to 1.0, since that's required for reasoning models.",
 )
 @click.option(
     "--max-tokens",
     type=int,
-    default=524288,
-    help="Maximum tokens in the response. Defaults to about half a million.",
+    default=64000,
+    help="Maximum tokens in the response. Defaults to 64000, which is the max allowed.",
 )
 @click.option(
     "--thinking-budget-tokens",
@@ -56,8 +56,7 @@ def main(
     """
     Use the prompt text from --prompt-file (and a system prompt from
     --system-prompt-file) to query the Claude API via the Anthropic SDK,
-    then store both the prompt and response in a conversation log file,
-    and also write out a separate file containing just the response.
+    streaming the response to log files.
     """
     # Read the main prompt
     try:
@@ -75,65 +74,63 @@ def main(
         click.echo(f"Error reading system prompt file: {exc}", err=True)
         sys.exit(1)
 
-    # Call the Claude API
-    try:
-        response_text = get_claude_response(
-            prompt,
-            system_prompt,
-            model,
-            temperature,
-            max_tokens,
-            thinking_budget_tokens,
-        )
-    except Exception as exc:
-        # Consider catching specific anthropic.APIError subclasses later
-        click.echo(f"Error calling Anthropic API: {exc}", err=True)
-        sys.exit(1)
-
-    # Write the response to stdout
-    click.echo(response_text)
-
     # Prepare for logging
     os.makedirs("log", exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     base_name = os.path.splitext(os.path.basename(prompt_file))[0]
-
-    # Append the prompt and response to a "conversation" log
     conversation_path = os.path.join("log", f"{base_name}_conversation")
+    response_path = os.path.join("log", f"{base_name}_claude_response_{timestamp}")
+
     try:
-        with open(conversation_path, "a", encoding="utf-8") as conv_f:
-            # Using a slightly more structured log format
+        # Open files for writing/appending *before* the API call
+        with open(conversation_path, "a", encoding="utf-8") as conv_f, \
+             open(response_path, "w", encoding="utf-8") as resp_f:
+
+            # Log the prompt part to the conversation file
             conv_f.write(f"--- Prompt: {timestamp} ---\n")
             conv_f.write(f"{prompt}\n")
             conv_f.write(f"--- Response: {timestamp} ---\n")
-            conv_f.write(f"{response_text}\n\n")  # Added newline for separation
+            conv_f.flush() # Ensure prompt is written before response starts
+
+            # Call the streaming API and process the stream
+            stream_claude_response(
+                prompt=prompt,
+                system_prompt=system_prompt,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                thinking_budget_tokens=thinking_budget_tokens,
+                conv_log_writer=conv_f,
+                resp_log_writer=resp_f,
+            )
+
+        click.echo(f"\nResponse stream finished.") # Add a newline after streaming
+        click.echo(f"Conversation appended to {conversation_path}")
+        click.echo(f"Response written to {response_path}")
+
     except OSError as exc:
-        click.echo(f"Error writing conversation log: {exc}", err=True)
-
-    # Write the response separately, with a timestamped filename
-    response_path = os.path.join("log", f"{base_name}_claude_response_{timestamp}")
-    try:
-        with open(response_path, "w", encoding="utf-8") as resp_f:
-            resp_f.write(response_text)
-    except OSError as exc:
-        click.echo(f"Error writing response file: {exc}", err=True)
-
-    click.echo(f"Response written to {response_path}")
+        click.echo(f"Error opening or writing log files: {exc}", err=True)
+        sys.exit(1)
+    except Exception as exc:
+        # Catch potential API errors raised from stream_claude_response
+        click.echo(f"\nError during API call or streaming: {exc}", err=True)
+        sys.exit(1)
 
 
-def get_claude_response(
+def stream_claude_response(
     prompt: str,
     system_prompt: str,
     model: str,
     temperature: float,
     max_tokens: int,
     thinking_budget_tokens: int,
-) -> str:
+    conv_log_writer: IO[str],
+    resp_log_writer: IO[str],
+) -> None:
     """
-    Uses the Claude API via the Anthropic Python SDK to process the
-    given prompt. Make sure the ANTHROPIC_API_KEY environment variable is set.
-
-    Returns the response text produced by the model.
+    Streams the Claude API response using the Anthropic Python SDK.
+    Writes text chunks to the provided file writers.
+    Make sure the ANTHROPIC_API_KEY environment variable is set.
     """
     # Client automatically reads ANTHROPIC_API_KEY from environment variables
     client = Anthropic()
@@ -142,7 +139,8 @@ def get_claude_response(
     thinking_param = {"type": "enabled", "budget_tokens": thinking_budget_tokens}
 
     try:
-        message = client.messages.create(
+        # Use the stream context manager
+        with client.messages.stream(
             model=model,
             system=system_prompt,
             messages=[
@@ -154,25 +152,43 @@ def get_claude_response(
             temperature=temperature,
             max_tokens=max_tokens,
             thinking=thinking_param,  # type: ignore
-            # timeout=0, # Default timeout is 10 minutes, configure if needed
-        )
+        ) as stream:
+            # Iterate through text chunks provided by the helper
+            for text in stream.text_stream:
+                # Write to response log file
+                resp_log_writer.write(text)
+                resp_log_writer.flush()
 
-        # Extract text content, ignoring thinking blocks for the final output
-        response_parts: List[str] = []
-        content_block: Union[TextBlock, ThinkingBlock]
-        for content_block in message.content:
-            if content_block.type == "text":
-                response_parts.append(content_block.text)
-            elif content_block.type == "thinking":
-                # Optionally log thinking steps here if desired
-                # click.echo(f"Thinking: {content_block.thinking}", err=True)
-                pass  # Ignore thinking blocks in final concatenated output
+                # Write to conversation log file
+                conv_log_writer.write(text)
+                conv_log_writer.flush()
 
-        return "".join(response_parts)
+            # --- Optional: Handle other event types if needed ---
+            # You can iterate through raw events instead of text_stream
+            # for event in stream:
+            #     if event.type == "text":
+            #         # ... write event.text ...
+            #     elif event.type == "thinking":
+            #         click.echo(f"\n[Thinking: {event.thinking}]", err=True)
+            #     elif event.type == "message_start":
+            #         click.echo(f"\n[Message Start - ID: {event.message.id}]", err=True)
+            #     elif event.type == "content_block_start":
+            #         click.echo(f"\n[Content Block Start - Type: {event.content_block.type}]", err=True)
+            #     elif event.type == "content_block_delta":
+            #         if event.delta.type == "text_delta":
+            #             # ... write event.delta.text ...
+            #     elif event.type == "content_block_stop":
+            #         click.echo(f"\n[Content Block Stop]", err=True)
+            #     elif event.type == "message_delta":
+            #         click.echo(f"\n[Message Delta - Stop Reason: {event.delta.stop_reason}]", err=True)
+            #     elif event.type == "message_stop":
+            #         click.echo(f"\n[Message Stop]", err=True)
+            # ----------------------------------------------------
 
     except Exception as e:
         # Re-raise for the main function to catch and report
-        raise RuntimeError(f"Anthropic API call failed: {e}") from e
+        # Add more specific error handling (e.g., APIStatusError) if needed
+        raise RuntimeError(f"Anthropic API stream failed: {e}") from e
 
 
 if __name__ == "__main__":

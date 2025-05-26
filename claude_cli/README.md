@@ -24,8 +24,8 @@ poetry run python -m claude_cli --prompt-file path/to/prompt.txt
 
 * `--system-prompt-file`: The file containing the system prompt (default: `system_prompts/coding_000000`).
 * `--model`: The Claude model name to use (default: `claude-3-7-sonnet-latest`).
-* `--temperature`: The temperature for generation (default: 0.3).
-* `--max-tokens`: The maximum number of tokens to generate in the response (default: about half a million).
+* `--temperature`: The temperature for generation (default: 1.0).
+* `--max-tokens`: The maximum number of tokens to generate in the response (default: 64000).
 * `--thinking-budget-tokens`: The number of tokens to use for "thinking" before generating the response (default: 16000).
 
 ### Example command
