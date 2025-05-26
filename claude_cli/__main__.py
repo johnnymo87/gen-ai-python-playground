@@ -24,8 +24,8 @@ from anthropic.lib.streaming import MessageStream
 )
 @click.option(
     "--model",
-    default="claude-3-7-sonnet-latest",
-    help="Anthropic model name to use. Defaults to claude-3-7-sonnet-latest.",
+    default="claude-sonnet-4-20250514",
+    help="Anthropic model name to use. Defaults to claude-sonnet-4-20250514.",
 )
 @click.option(
     "--temperature",
@@ -83,14 +83,16 @@ def main(
 
     try:
         # Open files for writing/appending *before* the API call
-        with open(conversation_path, "a", encoding="utf-8") as conv_f, \
-             open(response_path, "w", encoding="utf-8") as resp_f:
+        with (
+            open(conversation_path, "a", encoding="utf-8") as conv_f,
+            open(response_path, "w", encoding="utf-8") as resp_f,
+        ):
 
             # Log the prompt part to the conversation file
             conv_f.write(f"--- Prompt: {timestamp} ---\n")
             conv_f.write(f"{prompt}\n")
             conv_f.write(f"--- Response: {timestamp} ---\n")
-            conv_f.flush() # Ensure prompt is written before response starts
+            conv_f.flush()  # Ensure prompt is written before response starts
 
             # Call the streaming API and process the stream
             stream_claude_response(
@@ -104,7 +106,7 @@ def main(
                 resp_log_writer=resp_f,
             )
 
-        click.echo(f"\nResponse stream finished.") # Add a newline after streaming
+        click.echo(f"\nResponse stream finished.")  # Add a newline after streaming
         click.echo(f"Conversation appended to {conversation_path}")
         click.echo(f"Response written to {response_path}")
 
