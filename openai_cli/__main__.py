@@ -29,7 +29,10 @@ from openai import OpenAI
     "--temperature",
     type=float,
     default=1.0,
-    help="Temperature for generation. Defaults to 1.0, since that's required for reasoning models.",
+    help=(
+        "Temperature for generation. Defaults to 1.0, since that's required ",
+        "for reasoning models.",
+    ),
 )
 @click.option(
     "--max-tokens",

@@ -1,11 +1,10 @@
 import os
 import sys
 from datetime import datetime
-from typing import IO, Generator
+from typing import IO
 
 import click
 from anthropic import Anthropic
-from anthropic.lib.streaming import MessageStream
 
 
 @click.command()
@@ -31,7 +30,10 @@ from anthropic.lib.streaming import MessageStream
     "--temperature",
     type=float,
     default=1.0,
-    help="Temperature for generation. Defaults to 1.0, since that's required for reasoning models.",
+    help=(
+        "Temperature for generation. Defaults to 1.0, since ",
+        "that's required for reasoning models.",
+    ),
 )
 @click.option(
     "--max-tokens",
@@ -106,7 +108,7 @@ def main(
                 resp_log_writer=resp_f,
             )
 
-        click.echo(f"\nResponse stream finished.")  # Add a newline after streaming
+        click.echo("\nResponse stream finished.")  # Add a newline after streaming
         click.echo(f"Conversation appended to {conversation_path}")
         click.echo(f"Response written to {response_path}")
 
@@ -173,16 +175,27 @@ def stream_claude_response(
             #     elif event.type == "thinking":
             #         click.echo(f"\n[Thinking: {event.thinking}]", err=True)
             #     elif event.type == "message_start":
-            #         click.echo(f"\n[Message Start - ID: {event.message.id}]", err=True)
+            #         click.echo(
+            #               f"\n[Message Start - ID: {event.message.id}]",
+            #               err=True
+            #         )
             #     elif event.type == "content_block_start":
-            #         click.echo(f"\n[Content Block Start - Type: {event.content_block.type}]", err=True)
+            #         click.echo(
+            #               f"\n[Content Block Start - Type: ",
+            #               "{event.content_block.type}]",
+            #               err=True
+            #         )
             #     elif event.type == "content_block_delta":
             #         if event.delta.type == "text_delta":
             #             # ... write event.delta.text ...
             #     elif event.type == "content_block_stop":
             #         click.echo(f"\n[Content Block Stop]", err=True)
             #     elif event.type == "message_delta":
-            #         click.echo(f"\n[Message Delta - Stop Reason: {event.delta.stop_reason}]", err=True)
+            #         click.echo(
+            #               "\n[Message Delta - Stop Reason: ",
+            #               f"{event.delta.stop_reason}]",
+            #               err=True
+            #         )
             #     elif event.type == "message_stop":
             #         click.echo(f"\n[Message Stop]", err=True)
             # ----------------------------------------------------
