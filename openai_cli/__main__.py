@@ -28,14 +28,14 @@ from openai import OpenAI
 @click.option(
     "--temperature",
     type=float,
-    default=0.3,
-    help="Temperature for generation. Defaults to 0.3.",
+    default=1.0,
+    help="Temperature for generation. Defaults to 1.0, since that's required for reasoning models.",
 )
 @click.option(
     "--max-tokens",
     type=int,
-    default=1000000,
-    help="Maximum tokens in the response. Defaults to a million.",
+    default=16000,
+    help="Maximum tokens in the response. Defaults to 16000.",
 )
 def main(
     prompt_file: str,
@@ -127,7 +127,7 @@ def get_openai_response(
                 {"role": "user", "content": prompt},
             ],
             temperature=temperature,
-            max_tokens=max_tokens,
+            max_completion_tokens=max_tokens,
         )
 
         if completion.choices and completion.choices[0].message:
