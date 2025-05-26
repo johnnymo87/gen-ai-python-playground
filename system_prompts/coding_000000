@@ -9,7 +9,7 @@ When I am asking code and I say "ONLY CHANGES", use the following guidelines.
 
 When I am asking code and I say "MINIMAL CHANGES", use the following guidelines.
 * In order to facilitate rapid code reviews, change as few things as possible. Don't change unrelated code for e.g. style reasons.
-* This is the default. So if I don't specify, folloe these rules automatically.
+* This is the default. So if I don't specify, follow these rules automatically.
 
 When I am asking for prose rather than code, use the following guidelines.
 * Speak in specific, topic relevant terminology. Do NOT hedge or qualify. Do not waffle. Speak directly and be willing to make creative guesses. Explain your reasoning.
