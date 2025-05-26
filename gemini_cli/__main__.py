@@ -23,8 +23,8 @@ from google.genai import types  # type: ignore[import-untyped]
 )
 @click.option(
     "--model",
-    default="gemini-2.5-pro-exp-03-25",
-    help="Gemini model name to use. Defaults to gemini-2.5-pro-exp-03-25.",
+    default="gemini-2.5-pro-preview-05-06",
+    help="Gemini model name to use. Defaults to gemini-2.5-pro-preview-05-06.",
 )
 @click.option(
     "--temperature",
@@ -38,12 +38,19 @@ from google.genai import types  # type: ignore[import-untyped]
     default=1000000,
     help="Maximum tokens in the response. Defaults to a million.",
 )
+@click.option(
+    "--thinking-budget-tokens",
+    type=int,
+    default=16000,
+    help="Budget for the model's 'thinking' tokens.",
+)
 def main(
     prompt_file: str,
     system_prompt_file: str,
     model: str,
     temperature: float,
     max_tokens: int,
+    thinking_budget_tokens: int,
 ) -> None:
     """
     Use the prompt text from --prompt to query the Gemini API via
@@ -69,7 +76,12 @@ def main(
     # Make the request to Gemini
     try:
         response_text = get_gemini_response(
-            prompt, system_prompt, model, temperature, max_tokens
+            prompt=prompt,
+            system_prompt=system_prompt,
+            model=model,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            thinking_budget_tokens=thinking_budget_tokens,
         )
     except Exception as exc:
         click.echo(f"Error calling Gemini API: {exc}", err=True)
@@ -103,7 +115,12 @@ def main(
 
 
 def get_gemini_response(
-    prompt: str, system_prompt: str, model: str, temperature: float, max_tokens: int
+    prompt: str,
+    system_prompt: str,
+    model: str,
+    temperature: float,
+    max_tokens: int,
+    thinking_budget_tokens: int,
 ) -> str:
     """
     Uses the Gemini Developer API via the google-genai library to produce a response
@@ -127,6 +144,9 @@ def get_gemini_response(
             system_instruction=system_prompt,
             temperature=temperature,
             max_output_tokens=max_tokens,
+            thinking_config=types.ThinkingConfig(
+                thinking_budget=thinking_budget_tokens
+            ),
         ),
     )
 
