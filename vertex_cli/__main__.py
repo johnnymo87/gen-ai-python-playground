@@ -12,6 +12,11 @@ from pathlib import Path
 
 import click
 import vertexai  # type: ignore[import-untyped]
+
+# --- Anthropic models ---
+from anthropic import AnthropicVertex
+
+# --- Google models ---
 from vertexai.generative_models import (  # type: ignore[import-untyped]
     GenerationConfig,
     GenerativeModel,
@@ -40,20 +45,17 @@ from vertexai.generative_models import (  # type: ignore[import-untyped]
 @click.option(
     "--max-tokens",
     type=int,
-    default=65535,
-    help="Maximum tokens in the response. Defaults to 65535.",
+    default=1000000,
+    help=(
+        "Maximum tokens in the response. Defaults to a million, "
+        "but overriden to provider-specific limits."
+    ),
 )
 @click.option(
     "--project",
     envvar="GOOGLE_CLOUD_PROJECT",
     required=True,
     help="GCP project ID (env var fallback).",
-)
-@click.option(
-    "--location",
-    envvar="GOOGLE_CLOUD_LOCATION",
-    default="us-central1",
-    help="Vertex region (env var fallback).",
 )
 def main(
     prompt_file: str,
@@ -62,31 +64,58 @@ def main(
     temperature: float,
     max_tokens: int,
     project: str,
-    location: str,
 ) -> None:
     # ---------- read prompts ----------
     prompt = Path(prompt_file).read_text(encoding="utf-8")
     system_prompt = Path(system_prompt_file).read_text(encoding="utf-8")
 
-    # ---------- Vertex call ----------
-    vertexai.init(project=project, location=location)
+    # ---------- Dispatch by publisher ----------
+    if model.startswith(("claude", "publishers/anthropic")):
+        client = AnthropicVertex(project_id=project, region="us-east5")
+        max_tokens = min(max_tokens, 32000)  # Anthropic has a hard limit.
 
-    gen_model = GenerativeModel(
-        model_name=model,
-        system_instruction=system_prompt,
-    )
+        # --- stream the response ---
+        text_chunks: list[str] = []
+        with client.messages.stream(
+            model=model,  # e.g. "claude-opus-4"
+            system=system_prompt,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            messages=[{"role": "user", "content": prompt}],
+        ) as stream:
+            for event in stream:  # yields SSE events
+                if event.type == "content_block_delta":
+                    delta = event.delta
+                    if delta.type == "text_delta":
+                        piece = delta.text
+                        click.echo(piece, nl=False)  # live to terminal
+                        text_chunks.append(piece)
 
-    generation_config = GenerationConfig(
-        temperature=temperature,
-        max_output_tokens=max_tokens,
-    )
+        response_text = "".join(text_chunks)
+    elif model.startswith("gemini"):
+        vertexai.init(project=project, location="us-central1")
+        max_tokens = min(max_tokens, 65535)  # Gemini has a hard limit.
 
-    response = gen_model.generate_content(
-        prompt,
-        generation_config=generation_config,
-        stream=False,
-    )
-    response_text = response.text
+        gen_model = GenerativeModel(
+            model_name=model,  # e.g. "gemini-2.5-pro-preview-05-06"
+            system_instruction=system_prompt,
+        )
+        generation_config = GenerationConfig(
+            temperature=temperature,
+            max_output_tokens=max_tokens,
+        )
+        response = gen_model.generate_content(
+            prompt,
+            generation_config=generation_config,
+            stream=False,
+        )
+
+        response_text = response.text
+    else:
+        raise ValueError(
+            f"Unsupported model: {model}. "
+            "Only Gemini and Claude models are supported at this time."
+        )
 
     # ---------- log exactly like other modules ----------
     ts = datetime.now().strftime("%Y%m%d%H%M%S")

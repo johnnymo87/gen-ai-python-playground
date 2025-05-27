@@ -1,5 +1,4 @@
 export ANTHROPIC_API_KEY=your-anthropic-api-key
 export GOOGLE_API_KEY=your-google-api-key
 export GOOGLE_CLOUD_PROJECT=your-gcp-project-id
-export GOOGLE_CLOUD_LOCATION=your-gcp-region # e.g., us-central1
 export OPENAI_API_KEY=your-openai-api-key
