@@ -6,7 +6,7 @@ These CLIs require either call the service providers' APIs directly, or use Goog
 
 ## Overview
 
-This project leverages Python and [Poetry](https://python-poetry.org/) to manage dependencies, as well as [Direnv](https://direnv.net/) for managing environment variables. Each module (`claude_cli/`, `gemini_cli/`, `openai_cli/`) in this repository has its own README, which provides task-specific or site-specific details. # Modified this line
+This project leverages Python and [Poetry](https://python-poetry.org/) to manage dependencies, as well as [Direnv](https://direnv.net/) for managing environment variables. Each module (`claude_cli/`, `gemini_cli/`, `openai_cli/`, `vertex_cli/`) in this repository has its own README, which provides task-specific or site-specific details.
 
 ## Installation
 
