@@ -38,6 +38,7 @@ This project leverages Python and [Poetry](https://python-poetry.org/) to manage
 5. **Pre-commit Hooks:**
    - Install pre-commit hooks:
      ```bash
+     pip install pre-commit
      pre-commit install
      ```
 
