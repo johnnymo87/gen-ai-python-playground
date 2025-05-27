@@ -11,3 +11,4 @@ prompts/*
 # The outputs that the generative AI produces.
 log/*
 !log/.gitkeep
+.aider*
