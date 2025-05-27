@@ -15,6 +15,7 @@ repos:
         - anthropic
         - click
         - google-genai
+        - google-cloud-aiplatform
         - openai
 - repo: https://github.com/psf/black
   rev: 24.10.0
