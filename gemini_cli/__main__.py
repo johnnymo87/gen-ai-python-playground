@@ -3,8 +3,8 @@ import sys
 from datetime import datetime
 
 import click
-from google import genai  # type: ignore[import-untyped]
-from google.genai import types  # type: ignore[import-untyped]
+from google import genai
+from google.genai import types
 
 
 @click.command()

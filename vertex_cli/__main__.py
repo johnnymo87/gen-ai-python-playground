@@ -9,6 +9,7 @@ or point GOOGLE_APPLICATION_CREDENTIALS at a service-account JSON file.
 import os
 from datetime import datetime
 from pathlib import Path
+from typing import Any, Dict
 
 import click
 import vertexai  # type: ignore[import-untyped]
@@ -76,6 +77,8 @@ def main(
 
         # --- stream the response ---
         text_chunks: list[str] = []
+        token_usage: Dict[str, Any] = {}
+
         with client.messages.stream(
             model=model,  # e.g. "claude-opus-4"
             system=system_prompt,
@@ -84,7 +87,37 @@ def main(
             messages=[{"role": "user", "content": prompt}],
         ) as stream:
             for event in stream:  # yields SSE events
-                if event.type == "content_block_delta":
+                # Capture token usage from message_start event
+                if event.type == "message_start" and hasattr(event, "message"):
+                    if hasattr(event.message, "usage"):
+                        usage = event.message.usage
+                        token_usage.update(
+                            {
+                                "input_tokens": getattr(usage, "input_tokens", 0),
+                                "output_tokens": getattr(usage, "output_tokens", 0),
+                                "cache_creation_input_tokens": getattr(
+                                    usage, "cache_creation_input_tokens", 0
+                                ),
+                                "cache_read_input_tokens": getattr(
+                                    usage, "cache_read_input_tokens", 0
+                                ),
+                            }
+                        )
+
+                # Update token usage from message_delta event (cumulative)
+                elif event.type == "message_delta" and hasattr(event, "usage"):
+                    delta_usage = event.usage
+                    token_usage.update(
+                        {
+                            "output_tokens": getattr(
+                                delta_usage,
+                                "output_tokens",
+                                token_usage.get("output_tokens", 0),
+                            ),
+                        }
+                    )
+
+                elif event.type == "content_block_delta":
                     delta = event.delta
                     if delta.type == "text_delta":
                         piece = delta.text
@@ -92,6 +125,27 @@ def main(
                         text_chunks.append(piece)
 
         response_text = "".join(text_chunks)
+
+        # Print token usage information
+        click.echo("\n\n--- Token Usage ---")
+        click.echo(f"Input tokens: {token_usage.get('input_tokens', 0)}")
+        click.echo(f"Output tokens: {token_usage.get('output_tokens', 0)}")
+        click.echo(
+            "Cache creation tokens: "
+            f"{token_usage.get('cache_creation_input_tokens', 0)}"
+        )
+        click.echo(
+            f"Cache read tokens: {token_usage.get('cache_read_input_tokens', 0)}"
+        )
+        total_input = (
+            token_usage.get("input_tokens", 0)
+            + token_usage.get("cache_creation_input_tokens", 0)
+            + token_usage.get("cache_read_input_tokens", 0)
+        )
+        click.echo(f"Total input tokens: {total_input}")
+        click.echo(f"Total tokens: {total_input + token_usage.get('output_tokens', 0)}")
+        click.echo("-------------------\n")
+
     elif model.startswith("gemini"):
         vertexai.init(project=project, location="us-central1")
         max_tokens = min(max_tokens, 65535)  # Gemini has a hard limit.
@@ -109,6 +163,9 @@ def main(
             generation_config=generation_config,
             stream=False,
         )
+
+        # Print the model dump JSON for debugging
+        click.echo(response.model_dump_json())
 
         response_text = response.text
     else:
