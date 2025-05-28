@@ -16,13 +16,8 @@ import vertexai  # type: ignore[import-untyped]
 # --- Anthropic models ---
 from anthropic import AnthropicVertex
 
-# --- Google models ---
-from vertexai.generative_models import (  # type: ignore[import-untyped]
-    GenerationConfig,
-    GenerativeModel,
-)
-
 from anthropic_common.streaming import print_token_usage, stream_anthropic_response
+from gemini_common.api import get_gemini_response_via_vertex
 
 
 # ---------- CLI ----------
@@ -97,24 +92,14 @@ def main(
         vertexai.init(project=project, location="us-central1")
         max_tokens = min(max_tokens, 65535)  # Gemini has a hard limit.
 
-        gen_model = GenerativeModel(
-            model_name=model,  # e.g. "gemini-2.5-pro-preview-05-06"
-            system_instruction=system_prompt,
-        )
-        generation_config = GenerationConfig(
+        response_text = get_gemini_response_via_vertex(
+            prompt=prompt,
+            system_prompt=system_prompt,
+            model=model,
             temperature=temperature,
-            max_output_tokens=max_tokens,
-        )
-        response = gen_model.generate_content(
-            prompt,
-            generation_config=generation_config,
-            stream=False,
+            max_tokens=max_tokens,
         )
 
-        # Print the model dump JSON for debugging
-        click.echo(response.model_dump_json())
-
-        response_text = response.text
     else:
         raise ValueError(
             f"Unsupported model: {model}. "

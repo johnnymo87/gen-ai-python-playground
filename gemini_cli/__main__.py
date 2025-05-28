@@ -3,8 +3,8 @@ import sys
 from datetime import datetime
 
 import click
-from google import genai
-from google.genai import types
+
+from gemini_common.api import get_gemini_response_via_genai
 
 
 @click.command()
@@ -75,7 +75,7 @@ def main(
 
     # Make the request to Gemini
     try:
-        response_text = get_gemini_response(
+        response_text = get_gemini_response_via_genai(
             prompt=prompt,
             system_prompt=system_prompt,
             model=model,
@@ -112,49 +112,6 @@ def main(
         click.echo(f"Error writing response file: {exc}", err=True)
 
     click.echo(f"Response written to {response_path}")
-
-
-def get_gemini_response(
-    prompt: str,
-    system_prompt: str,
-    model: str,
-    temperature: float,
-    max_tokens: int,
-    thinking_budget_tokens: int,
-) -> str:
-    """
-    Uses the Gemini Developer API via the google-genai library to produce a response
-    for the provided prompt. Make sure you have the environment variable:
-      GOOGLE_API_KEY
-    set to your Gemini Developer API key.
-    """
-    # Ensure the environment variable is set
-    api_key = os.environ.get("GOOGLE_API_KEY")
-    if not api_key:
-        raise RuntimeError("GOOGLE_API_KEY environment variable not set.")
-
-    # Create the client for Gemini
-    client = genai.Client(api_key=api_key)
-
-    # Generate text via Gemini
-    response = client.models.generate_content(
-        model=model,
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            system_instruction=system_prompt,
-            temperature=temperature,
-            max_output_tokens=max_tokens,
-            thinking_config=types.ThinkingConfig(
-                thinking_budget=thinking_budget_tokens
-            ),
-        ),
-    )
-
-    # Print the model dump JSON for debugging
-    click.echo(response.model_dump_json())
-
-    # Return the text from the first (and typically only) candidate
-    return response.text or ""
 
 
 if __name__ == "__main__":
