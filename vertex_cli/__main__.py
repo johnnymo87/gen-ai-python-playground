@@ -49,6 +49,15 @@ from gemini_common.api import get_gemini_response_via_vertex
     ),
 )
 @click.option(
+    "--thinking-budget",
+    type=int,
+    default=None,
+    help=(
+        "Thinking budget in tokens for Gemini 2.5 models. "
+        "None (default) for auto, 0 to disable thinking."
+    ),
+)
+@click.option(
     "--project",
     envvar="GOOGLE_CLOUD_PROJECT",
     required=True,
@@ -60,6 +69,7 @@ def main(
     model: str,
     temperature: float,
     max_tokens: int,
+    thinking_budget: int,
     project: str,
 ) -> None:
     # ---------- read prompts ----------
@@ -98,6 +108,7 @@ def main(
             model=model,
             temperature=temperature,
             max_tokens=max_tokens,
+            thinking_budget_tokens=thinking_budget,
         )
 
     else:

@@ -1,6 +1,7 @@
 """Common API utilities for Gemini."""
 
 import os
+from typing import Optional
 
 import click
 from google import genai
@@ -60,10 +61,20 @@ def get_gemini_response_via_vertex(
     model: str,
     temperature: float,
     max_tokens: int,
+    thinking_budget_tokens: Optional[int] = None,
 ) -> str:
     """
     Uses the Gemini models via Vertex AI to produce a response for the provided prompt.
     Requires proper Google Cloud authentication via ADC.
+
+    Args:
+        prompt: The user prompt text
+        system_prompt: The system instructions
+        model: The Vertex AI model name
+        temperature: Generation temperature
+        max_tokens: Maximum tokens to generate
+        thinking_budget_tokens: Thinking budget in tokens
+            (None for auto, 0 to disable thinking)
     """
     gen_model = GenerativeModel(
         model_name=model,
@@ -73,11 +84,26 @@ def get_gemini_response_via_vertex(
         temperature=temperature,
         max_output_tokens=max_tokens,
     )
+
+    # Add thinking configuration if supported
+    thinking_config = None
+    if model.startswith("gemini-2.5") and thinking_budget_tokens is not None:
+        # Import locally to avoid dependency issues for non-Vertex usage
+        import vertexai.preview.generative_models  # type: ignore[import-untyped]
+
+        ThinkingConfig = vertexai.preview.generative_models.ThinkingConfig
+
+        thinking_config = ThinkingConfig(thinking_budget=thinking_budget_tokens)
+
     response = gen_model.generate_content(
         prompt,
         generation_config=generation_config,
+        thinking_config=thinking_config,
         stream=False,
     )
+
+    # Print the model dump JSON for debugging
+    click.echo(response.usage_metadata)
 
     # Ensure we return a string
     return str(response.text) if response.text else ""

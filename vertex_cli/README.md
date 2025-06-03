@@ -25,8 +25,9 @@ poetry run python -m vertex_cli --prompt-file path/to/prompt.txt
 
 * `--system-prompt-file`: The file containing the system prompt (default: `system_prompts/coding_000000`).
 * `--model`: The Vertex AI model name to use (default model varies by implementation).
-* `--temperature`: The temperature for generation (default: 1.0).
-* `--max-tokens`: The maximum number of tokens to generate in the response (default: 16000).
+* `--temperature`: The temperature for generation (default: 0.3).
+* `--max-tokens`: The maximum number of tokens to generate in the response (default: 1000000, but limited by model).
+* `--thinking-budget`: Thinking budget in tokens for Gemini 2.5 models (default: None for auto, 0 to disable thinking).
 * `--project`: The Google Cloud project ID to use.
 
 ### Example command
@@ -40,6 +41,7 @@ poetry run python -m vertex_cli \
   --model gemini-1.5-pro \
   --temperature 0.7 \
   --max-tokens 8000 \
+  --thinking-budget 4096 \
   --project my-gcp-project \
   --system-prompt-file path/to/system_prompt.txt \
   --prompt-file path/to/prompt.txt
