@@ -51,10 +51,10 @@ from gemini_common.api import get_gemini_response_via_vertex
 @click.option(
     "--thinking-budget",
     type=int,
-    default=None,
+    default=8192,
     help=(
-        "Thinking budget in tokens for Gemini 2.5 models. "
-        "None (default) for auto, 0 to disable thinking."
+        "Thinking budget in tokens for Gemini and Claude models. "
+        "Default: 8192 tokens. Set to 0 to disable thinking."
     ),
 )
 @click.option(
@@ -89,7 +89,8 @@ def main(
             model=model,
             temperature=temperature,
             max_tokens=max_tokens,
-            thinking_budget_tokens=None,  # Not supported in Vertex
+            # Extended thinking for Claude models
+            thinking_budget_tokens=thinking_budget,
             conv_log_writer=None,  # We'll handle logging after
             resp_log_writer=None,  # We'll handle logging after
             echo_to_terminal=True,

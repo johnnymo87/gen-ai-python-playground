@@ -27,7 +27,7 @@ poetry run python -m vertex_cli --prompt-file path/to/prompt.txt
 * `--model`: The Vertex AI model name to use (default model varies by implementation).
 * `--temperature`: The temperature for generation (default: 0.3).
 * `--max-tokens`: The maximum number of tokens to generate in the response (default: 1000000, but limited by model).
-* `--thinking-budget`: Thinking budget in tokens for Gemini 2.5 models (default: None for auto, 0 to disable thinking).
+* `--thinking-budget`: Thinking budget in tokens for Gemini and Claude models (default: 8192 tokens, 0 to disable thinking).
 * `--project`: The Google Cloud project ID to use.
 
 ### Example command

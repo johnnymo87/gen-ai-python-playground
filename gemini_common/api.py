@@ -1,7 +1,6 @@
 """Common API utilities for Gemini."""
 
 import os
-from typing import Optional
 
 import click
 from google import genai
@@ -61,7 +60,7 @@ def get_gemini_response_via_vertex(
     model: str,
     temperature: float,
     max_tokens: int,
-    thinking_budget_tokens: Optional[int] = None,
+    thinking_budget_tokens: int,
 ) -> str:
     """
     Uses the Gemini models via Vertex AI to produce a response for the provided prompt.
@@ -74,7 +73,7 @@ def get_gemini_response_via_vertex(
         temperature: Generation temperature
         max_tokens: Maximum tokens to generate
         thinking_budget_tokens: Thinking budget in tokens
-            (None for auto, 0 to disable thinking)
+            (set to 0 to disable thinking)
     """
     gen_model = GenerativeModel(
         model_name=model,
@@ -87,7 +86,7 @@ def get_gemini_response_via_vertex(
 
     # Add thinking configuration if supported
     thinking_config = None
-    if model.startswith("gemini-2.5") and thinking_budget_tokens is not None:
+    if model.startswith("gemini-2.5") and thinking_budget_tokens > 0:
         # Import locally to avoid dependency issues for non-Vertex usage
         import vertexai.preview.generative_models  # type: ignore[import-untyped]
 

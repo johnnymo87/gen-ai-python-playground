@@ -1,20 +1,27 @@
 """Common streaming utilities for Anthropic API."""
 
-from typing import IO, Any, Dict, Optional, Tuple
+from typing import IO, TYPE_CHECKING, Any, Dict, Optional, Tuple, Union
 
+# Runtime imports with type checking separation
+import anthropic  # noqa: E402
 import click
-from anthropic import Anthropic, AnthropicVertex
-from anthropic.types import MessageParam
+from anthropic.types import MessageParam  # noqa: E402, F401
+
+# Define type aliases for better readability
+if TYPE_CHECKING:
+    from anthropic import Anthropic, AnthropicVertex  # noqa: F401
+
+AnthropicClient = Union["anthropic.Anthropic", "anthropic.AnthropicVertex"]
 
 
 def stream_anthropic_response(
-    client: Anthropic | AnthropicVertex,
+    client: AnthropicClient,
     prompt: str,
     system_prompt: str,
     model: str,
     temperature: float,
     max_tokens: int,
-    thinking_budget_tokens: Optional[int] = None,
+    thinking_budget_tokens: int,
     conv_log_writer: Optional[IO[str]] = None,
     resp_log_writer: Optional[IO[str]] = None,
     echo_to_terminal: bool = True,
@@ -29,7 +36,7 @@ def stream_anthropic_response(
         model: Model name to use
         temperature: Temperature for generation
         max_tokens: Maximum tokens in the response
-        thinking_budget_tokens: Budget for thinking tokens (optional)
+        thinking_budget_tokens: Budget for thinking tokens in extended thinking mode
         conv_log_writer: File writer for conversation log (optional)
         resp_log_writer: File writer for response log (optional)
         echo_to_terminal: Whether to echo response to terminal
@@ -49,8 +56,9 @@ def stream_anthropic_response(
         "max_tokens": max_tokens,
     }
 
-    # Add thinking parameter if provided and client supports it
-    if thinking_budget_tokens is not None and isinstance(client, Anthropic):
+    # Add thinking parameter if value is positive (for both direct and Vertex clients)
+    if thinking_budget_tokens > 0:
+        # Both direct Anthropic API and Vertex AI support the thinking parameter
         api_params["thinking"] = {
             "type": "enabled",
             "budget_tokens": thinking_budget_tokens,
