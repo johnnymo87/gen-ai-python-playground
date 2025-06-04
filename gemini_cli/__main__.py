@@ -111,7 +111,7 @@ def main(
     except OSError as exc:
         click.echo(f"Error writing response file: {exc}", err=True)
 
-    click.echo(f"Response written to {response_path}")
+    click.echo(response_text)
 
 
 if __name__ == "__main__":
