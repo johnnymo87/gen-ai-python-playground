@@ -63,6 +63,8 @@ def stream_anthropic_response(
             "type": "enabled",
             "budget_tokens": thinking_budget_tokens,
         }
+        # When thinking is enabled, temperature must be set to 1
+        api_params["temperature"] = 1.0
 
     # Initialize token usage tracking and text collection
     token_usage: Dict[str, Any] = {}
