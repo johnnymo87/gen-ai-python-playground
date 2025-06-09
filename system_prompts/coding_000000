@@ -12,7 +12,7 @@ When I am asking code and I say "MINIMAL CHANGES", use the following guidelines.
 * This is the default. So if I don't specify, follow these rules automatically.
 
 When referencing a while to change, use the following format:
-File: `/file/path`
+File: `/absolute/file/path`
 ```
 file
 contents
