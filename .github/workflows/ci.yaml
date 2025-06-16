@@ -19,24 +19,20 @@ jobs:
       with:
         python-version: "3.12"
 
-    - name: Install Poetry
+    - name: Install uv
       run: |
-        curl -sSL https://install.python-poetry.org | python3 -
-
-    # Make Poetry available on the path:
-    - name: Update PATH
-      run: echo "${{ runner.temp }}/.poetry/bin" >> $GITHUB_PATH
+        curl -LsSf https://astral.sh/uv/install.sh | sh
 
     - name: Install dependencies
       run: |
-        poetry install --with dev --no-root
+        uv sync
 
     - name: Run pre-commit hooks (formatters, linters)
       run: |
-        poetry run pre-commit run --all-files
+        uv run pre-commit run --all-files
 
     # If ever there are tests to run, uncomment the following lines.
     #
     # - name: Run tests
     #   run: |
-    #     poetry run pytest --cov --cov-report=term-missing
+    #     uv run pytest --cov --cov-report=term-missing

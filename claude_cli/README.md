@@ -10,14 +10,14 @@ This module uses the following environment variables:
 
 ## Using the CLI
 
-You can run the CLI using Poetry:
+You can run the CLI using uv:
 
 ### Required flag
 
 * `--prompt-file`: The path to a file containing the prompt.
 
 ```bash
-poetry run python -m claude_cli --prompt-file path/to/prompt.txt
+uv run python -m claude_cli --prompt-file path/to/prompt.txt
 ```
 
 ### Optional flags
@@ -32,7 +32,7 @@ poetry run python -m claude_cli --prompt-file path/to/prompt.txt
 
 ```bash
 # Example usage with custom system prompt, model, temperature, and max tokens.
-poetry run python -m claude_cli \
+uv run python -m claude_cli \
   --model claude-3-7-sonnet-latest \
   --temperature 0.7 \
   --max-tokens 15000 \

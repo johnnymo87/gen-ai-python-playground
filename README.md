@@ -6,7 +6,7 @@ These CLIs require either call the service providers' APIs directly, or use Goog
 
 ## Overview
 
-This project leverages Python and [Poetry](https://python-poetry.org/) to manage dependencies, as well as [Direnv](https://direnv.net/) for managing environment variables. Each module (`claude_cli/`, `gemini_cli/`, `openai_cli/`, `vertex_cli/`) in this repository has its own README, which provides task-specific or site-specific details.
+This project leverages Python and [uv](https://docs.astral.sh/uv/) to manage dependencies, as well as [Direnv](https://direnv.net/) for managing environment variables. Each module (`claude_cli/`, `gemini_cli/`, `openai_cli/`, `vertex_cli/`) in this repository has its own README, which provides task-specific or site-specific details.
 
 ## Installation
 
@@ -40,13 +40,13 @@ This project leverages Python and [Poetry](https://python-poetry.org/) to manage
    - The required Python version is specified in `.python-version`.
 
 4. **Install Dependencies:**
-   - Install Poetry if you haven't already:
+   - Install uv if you haven't already:
      ```bash
-     curl -sSL https://install.python-poetry.org | python3 -
+     curl -LsSf https://astral.sh/uv/install.sh | sh
      ```
    - Then install project dependencies:
      ```bash
-     poetry install --with dev
+     uv sync
      ```
 
 5. **Pre-commit Hooks:**
@@ -65,7 +65,7 @@ This project leverages Python and [Poetry](https://python-poetry.org/) to manage
 7. **Running Tests:**
    - Execute tests (if present) using pytest:
      ```bash
-     poetry run pytest
+     uv run pytest
      ```
 
 ## CI Pipeline

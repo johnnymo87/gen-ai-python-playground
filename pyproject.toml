@@ -17,14 +17,16 @@ dependencies = [
 
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.poetry]
-package-mode = false
+[tool.hatch.build.targets.wheel]
+packages = ["anthropic_common", "claude_cli", "gemini_cli", "gemini_common", "openai_cli", "vertex_cli"]
 
-[tool.poetry.group.dev.dependencies]
-flake8 = "^7.1.1"
-pre-commit = "^4.1.0"
-flake8-type-checking = "^3.0.0"
-mypy = "^1.14.1"
+[dependency-groups]
+dev = [
+    "flake8>=7.1.1",
+    "pre-commit>=4.1.0",
+    "flake8-type-checking>=3.0.0",
+    "mypy>=1.14.1"
+]
