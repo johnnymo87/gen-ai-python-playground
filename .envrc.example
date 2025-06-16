@@ -1,4 +1,12 @@
 export ANTHROPIC_API_KEY=your-anthropic-api-key
-export GOOGLE_API_KEY=your-google-api-key
-export GOOGLE_CLOUD_PROJECT=your-gcp-project-id
+# Uncomment just one of the following.
+# # #
+# If using an API key from https://aistudio.google.com:
+# export GOOGLE_API_KEY=your-google-api-key
+# If using Vertex AI:
+# export GOOGLE_CLOUD_PROJECT=your-gcp-project-id
+# export GOOGLE_CLOUD_LOCATION=global
+# export GOOGLE_GENAI_USE_VERTEXAI=True
+# # #
+#
 export OPENAI_API_KEY=your-openai-api-key

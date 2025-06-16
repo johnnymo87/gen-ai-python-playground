@@ -63,6 +63,12 @@ from gemini_common.api import get_gemini_response_via_vertex
     required=True,
     help="GCP project ID (env var fallback).",
 )
+@click.option(
+    "--location",
+    envvar="GOOGLE_CLOUD_LOCATION",
+    required=True,
+    help="GCP location (env var fallback).",
+)
 def main(
     prompt_file: str,
     system_prompt_file: str,
@@ -71,6 +77,7 @@ def main(
     max_tokens: int,
     thinking_budget: int,
     project: str,
+    location: str,
 ) -> None:
     # ---------- read prompts ----------
     prompt = Path(prompt_file).read_text(encoding="utf-8")
@@ -100,7 +107,7 @@ def main(
         print_token_usage(token_usage)
 
     elif model.startswith("gemini"):
-        vertexai.init(project=project, location="us-central1")
+        vertexai.init(project=project, location=location)
         max_tokens = min(max_tokens, 65535)  # Gemini has a hard limit.
 
         response_text = get_gemini_response_via_vertex(
