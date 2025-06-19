@@ -39,7 +39,14 @@ if ! uv run ruff format --check anthropic_common/ claude_cli/ gemini_cli/ openai
     exit 1
 fi
 
-echo "✅ All ruff checks passed!"
+# Run mypy type checking on main package files only
+echo "→ Running mypy type check..."
+if ! uv run mypy anthropic_common/ claude_cli/ gemini_cli/ openai_cli/ vertex_cli/ 2>/dev/null; then
+    echo "❌ Mypy type checking failed. Please fix the type issues above."
+    exit 1
+fi
+
+echo "✅ All checks passed!"
 HOOK_EOF
 
 # Make the hook executable
@@ -47,7 +54,7 @@ chmod +x "$HOOK_FILE"
 
 echo "✅ Git pre-commit hook installed successfully!"
 echo ""
-echo "The hook will now run 'uv run ruff check' and 'uv run ruff format --check'"
+echo "The hook will now run 'uv run ruff check', 'uv run ruff format --check', and 'uv run mypy'"
 echo "before each commit to ensure code quality."
 echo ""
 echo "To skip the hook for a specific commit, use: git commit --no-verify"
