@@ -23,8 +23,8 @@ from gemini_common.api import get_gemini_response_via_genai
 )
 @click.option(
     "--model",
-    default="gemini-2.5-pro-preview-05-06",
-    help="Gemini model name to use. Defaults to gemini-2.5-pro-preview-05-06.",
+    default="gemini-2.5-pro",
+    help="Gemini model name to use.",
 )
 @click.option(
     "--temperature",

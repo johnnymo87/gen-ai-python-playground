@@ -30,7 +30,7 @@ from gemini_common.api import get_gemini_response_via_vertex
 )
 @click.option(
     "--model",
-    default="gemini-2.5-pro-preview-06-05",
+    default="gemini-2.5-pro",
     help="Any model you have permission to call in Vertex.",
 )
 @click.option(
