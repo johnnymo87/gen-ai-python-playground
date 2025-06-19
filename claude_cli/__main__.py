@@ -63,7 +63,7 @@ def main(
     """
     # Read the main prompt
     try:
-        with open(prompt_file, "r", encoding="utf-8") as f:
+        with open(prompt_file, encoding="utf-8") as f:
             prompt = f.read()
     except OSError as exc:
         click.echo(f"Error reading prompt file: {exc}", err=True)
@@ -71,7 +71,7 @@ def main(
 
     # Read the system prompt
     try:
-        with open(system_prompt_file, "r", encoding="utf-8") as f:
+        with open(system_prompt_file, encoding="utf-8") as f:
             system_prompt = f.read()
     except OSError as exc:
         click.echo(f"Error reading system prompt file: {exc}", err=True)
@@ -90,7 +90,6 @@ def main(
             open(conversation_path, "a", encoding="utf-8") as conv_f,
             open(response_path, "w", encoding="utf-8") as resp_f,
         ):
-
             # Log the prompt part to the conversation file
             conv_f.write(f"--- Prompt: {timestamp} ---\n")
             conv_f.write(f"{prompt}\n")

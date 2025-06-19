@@ -59,7 +59,7 @@ def main(
     """
     # Read the prompt from the specified file
     try:
-        with open(prompt_file, "r", encoding="utf-8") as f:
+        with open(prompt_file, encoding="utf-8") as f:
             prompt = f.read()
     except OSError as exc:
         click.echo(f"Error reading prompt file: {exc}", err=True)
@@ -67,7 +67,7 @@ def main(
 
     # Read the system prompt from the specified file
     try:
-        with open(system_prompt_file, "r", encoding="utf-8") as f:
+        with open(system_prompt_file, encoding="utf-8") as f:
             system_prompt = f.read()
     except OSError as exc:
         click.echo(f"Error reading system prompt file: {exc}", err=True)
