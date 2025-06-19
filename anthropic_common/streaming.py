@@ -1,11 +1,12 @@
 """Common streaming utilities for Anthropic API."""
 
-from typing import IO, TYPE_CHECKING, Any, Dict, Optional, Tuple, Union
+from typing import IO, TYPE_CHECKING, Any, Union
 
 # Runtime imports with type checking separation
 import anthropic  # noqa: E402
 import click
 from anthropic.types import MessageParam  # noqa: E402, F401
+
 
 # Define type aliases for better readability
 if TYPE_CHECKING:
@@ -22,10 +23,10 @@ def stream_anthropic_response(
     temperature: float,
     max_tokens: int,
     thinking_budget_tokens: int,
-    conv_log_writer: Optional[IO[str]] = None,
-    resp_log_writer: Optional[IO[str]] = None,
+    conv_log_writer: IO[str] | None = None,
+    resp_log_writer: IO[str] | None = None,
     echo_to_terminal: bool = True,
-) -> Tuple[str, Dict[str, Any]]:
+) -> tuple[str, dict[str, Any]]:
     """
     Streams the Anthropic API response using the provided client.
 
@@ -48,7 +49,7 @@ def stream_anthropic_response(
     messages: list[MessageParam] = [{"role": "user", "content": prompt}]
 
     # Build the parameters for the API call
-    api_params: Dict[str, Any] = {
+    api_params: dict[str, Any] = {
         "model": model,
         "system": system_prompt,
         "messages": messages,
@@ -67,7 +68,7 @@ def stream_anthropic_response(
         api_params["temperature"] = 1.0
 
     # Initialize token usage tracking and text collection
-    token_usage: Dict[str, Any] = {}
+    token_usage: dict[str, Any] = {}
     text_chunks: list[str] = []
 
     try:
@@ -136,14 +137,13 @@ def stream_anthropic_response(
     return response_text, token_usage
 
 
-def print_token_usage(token_usage: Dict[str, Any]) -> None:
+def print_token_usage(token_usage: dict[str, Any]) -> None:
     """Print token usage information in a consistent format."""
     click.echo("\n\n--- Token Usage ---")
     click.echo(f"Input tokens: {token_usage.get('input_tokens', 0)}")
     click.echo(f"Output tokens: {token_usage.get('output_tokens', 0)}")
     click.echo(
-        f"Cache creation tokens: "
-        f"{token_usage.get('cache_creation_input_tokens', 0)}"
+        f"Cache creation tokens: {token_usage.get('cache_creation_input_tokens', 0)}"
     )
     click.echo(f"Cache read tokens: {token_usage.get('cache_read_input_tokens', 0)}")
     total_input = (

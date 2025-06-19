@@ -27,9 +27,17 @@ jobs:
       run: |
         uv sync
 
-    - name: Run pre-commit hooks (formatters, linters)
+    - name: Run ruff linter
       run: |
-        uv run pre-commit run --all-files
+        uv run ruff check .
+
+    - name: Run ruff formatter
+      run: |
+        uv run ruff format --check .
+
+    - name: Run mypy type checker
+      run: |
+        uv run mypy .
 
     # If ever there are tests to run, uncomment the following lines.
     #

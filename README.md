@@ -49,20 +49,23 @@ This project leverages Python and [uv](https://docs.astral.sh/uv/) to manage dep
      uv sync
      ```
 
-5. **Pre-commit Hooks:**
-   - Install pre-commit hooks:
+5. **Code Quality:**
+   - Run ruff for linting and formatting:
      ```bash
-     pip install pre-commit
-     pre-commit install
+     # Check for linting issues
+     uv run ruff check .
+     
+     # Auto-fix linting issues
+     uv run ruff check --fix .
+     
+     # Format code
+     uv run ruff format .
+     
+     # Run type checking
+     uv run mypy .
      ```
 
-6. **Running the linter:**
-   - Run the linter with:
-     ```bash
-     pre-commit run --all-files
-     ```
-
-7. **Running Tests:**
+6. **Running Tests:**
    - Execute tests (if present) using pytest:
      ```bash
      uv run pytest
