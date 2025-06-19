@@ -8,14 +8,14 @@ This module provides a CLI tool and library function for interacting with Google
 
 ## Using the CLI
 
-You can run the CLI using Poetry:
+You can run the CLI using uv:
 
 ### Required flag
 
 * `--prompt-file`: The path to a file containing the prompt.
 
 ```bash
-poetry run python -m gemini_cli --prompt-file path/to/prompt.txt
+uv run python -m gemini_cli --prompt-file path/to/prompt.txt
 ```
 
 ### Optional flags
@@ -29,7 +29,7 @@ poetry run python -m gemini_cli --prompt-file path/to/prompt.txt
 
 ```bash
 # Example usage with custom system prompt, model, temperature, and max tokens.
-poetry run python -m gemini_cli \
+uv run python -m gemini_cli \
   --model gemini-2.5-pro-exp-03-25 \
   --temperature 0.6 \
   --max-tokens 1024 \
