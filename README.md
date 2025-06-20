@@ -62,13 +62,13 @@ This project leverages Python and [uv](https://docs.astral.sh/uv/) to manage dep
      ```bash
      # Check for linting issues
      uv run ruff check .
-     
+
      # Auto-fix linting issues
      uv run ruff check --fix .
-     
+
      # Format code
      uv run ruff format .
-     
+
      # Run type checking
      uv run mypy .
      ```
