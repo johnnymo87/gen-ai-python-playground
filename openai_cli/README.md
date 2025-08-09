@@ -44,4 +44,14 @@ This module writes two logs to the `log/` directory:
 1.  A conversation log (`<basename>_conversation`) that appends both the prompt and response.
 2.  A response-only text file named `<basename>_openai_response_<timestamp>`.
 
+## Tips
+
+Here's a curl command for checking which models are available to you:
+
+```bash
+curl https://api.openai.com/v1/models \
+  -H "Authorization: Bearer $OPENAI_API_KEY"
+
+```
+
 Happy prompting!
