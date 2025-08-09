@@ -22,7 +22,7 @@ from openai import OpenAI
 )
 @click.option(
     "--model",
-    default="gpt-4o-mini",
+    default="gpt-5",
     help="OpenAI model name to use. Defaults to gpt-4o-mini.",
 )
 @click.option(
